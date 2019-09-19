@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 class RpsGame {
   constructor(p1, p2) {
     this._players = [p1, p2];
@@ -50,30 +52,41 @@ class RpsGame {
     switch (distance) {
       case 0:
         // draw
-        this._sendToPlayers('Draw!');
+        this._sendToPlayers("Draw!");
         break;
       case 1:
         // p0 won
-        this._scores[0] += 1; 
+        this._scores[0] += 1;
         this._sendWinMessage(this._players[0], this._players[1]);
-        
+
         break;
       case 2:
         // p1 won
-        this._scores[1] += 1; 
+        this._scores[1] += 1;
         this._sendWinMessage(this._players[1], this._players[0]);
         break;
     }
   }
 
-  _sendWinMessage(winner, loser){
-      winner.emit('message', 'You won!');
-      loser.emit('message', 'You lost...');
-      this._emitPlayersScores();
+  _sendWinMessage(winner, loser) {
+    winner.emit("message", "You won!");
+    fetch("https://api.giphy.com/v1/stickers/random?api_key=/yourAPIkeygoeshere/=win&rating=G")
+      .then(res => res.json())
+      .then(res => winner.emit("gif", res.data.embed_url));
+    loser.emit("message", "You lost...");
+    fetch("https://api.giphy.com/v1/stickers/random?api_key=/yourAPIkeygoeshere/=loser&rating=G")
+      .then(res => res.json())
+      .then(res => loser.emit("gif", res.data.embed_url));
+    this._emitPlayersScores();
   }
 
-  _emitPlayersScores(){
-    this._players.forEach((player, idx)=>player.emit('score', this._scores[idx]));
+  _emitPlayersScores() {
+    this._players.forEach((player, idx) =>
+      player.emit("score", this._scores[idx])
+    );
+    this._players.forEach((player, idx) =>
+      player.emit("oponentScore", this._scores[idx === 1 ? 0 : 1])
+    );
   }
 
   _decodeTurn(turn) {

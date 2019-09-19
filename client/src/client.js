@@ -14,6 +14,27 @@ const writeEvent = (text) => {
     chatWindow.scrollTo(0, xH);
 };
 
+const showGif = (link) => {
+    // <ul> element
+    const parent = document.querySelector('#events');
+
+    //<li> element
+    const el = document.createElement('li');
+
+    //<img> element
+    const img = document.createElement('iframe');
+    
+    img.src = link;
+
+    parent.appendChild(el);
+    el.appendChild(img);
+
+    //scroll to the bottom
+    chatWindow = document.getElementById('events'); 
+    var xH = chatWindow.scrollHeight; 
+    chatWindow.scrollTo(0, xH);
+};
+
 const onFormSubmitted = (e) =>{
     e.preventDefault();
 
@@ -34,8 +55,11 @@ const addButtonListeners = () => {
 };
 
 const writeScore = (score) => {
-    const scoreEl = document.getElementById('score');
-    scoreEl.innerHTML = score;
+    document.getElementById('score').innerHTML = score;
+};
+
+const writeOponentScore = (oponentScore) =>{
+    document.getElementById('oponent-score').innerHTML = oponentScore;
 };
 
 writeEvent('Welcome to RPS');
@@ -43,6 +67,8 @@ writeEvent('Welcome to RPS');
 const sock = io();
 sock.on('message', writeEvent);
 sock.on('score', writeScore);
+sock.on('oponentScore', writeOponentScore);
+sock.on('gif', showGif);
 
 document
     .querySelector('#chat-form')
